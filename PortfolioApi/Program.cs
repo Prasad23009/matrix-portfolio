@@ -4,11 +4,19 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOpenApi();
 
+var allowedOrigins = builder.Configuration
+    .GetSection("AllowedOrigins")
+    .Get<string[]>()
+    ?? [
+        "http://localhost:5173",
+        "https://prasad23009.github.io"
+    ];
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("Frontend", policy =>
     {
-        policy.WithOrigins("http://localhost:5173")
+        policy.WithOrigins(allowedOrigins)
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
@@ -33,9 +41,10 @@ using (var scope = app.Services.CreateScope())
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.UseHttpsRedirection();
 }
 
-app.UseHttpsRedirection();
+app.MapGet("/health", () => Results.Ok(new { status = "healthy" }));
 
 app.MapGet("/api/profile", () => new
 {

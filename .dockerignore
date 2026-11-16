@@ -1,0 +1,11 @@
+.git
+.github
+**/bin
+**/obj
+**/node_modules
+**/dist
+**/.env
+**/.env.*
+!matrix-portfolio-web/.env.example
+PortfolioApi/appsettings.Development.json
+PortfolioApi/Program.cs.bak
