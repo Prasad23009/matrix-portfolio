@@ -36,6 +36,7 @@ jobs:
         working-directory: matrix-portfolio-web
         env:
           BASE_PATH: /${{ github.event.repository.name }}/
+          VITE_API_URL: https://matrix-api-a9fk.onrender.com/api
         run: npm run build
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
