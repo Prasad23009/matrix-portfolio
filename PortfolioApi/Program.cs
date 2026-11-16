@@ -109,14 +109,6 @@ app.MapPost("/api/enquiries", async (ContactEnquiry request, PortfolioDbContext 
 })
 .WithName("CreateEnquiry");
 
-app.MapGet("/api/enquiries", async (PortfolioDbContext database) =>
-{
-    return await database.Enquiries
-        .OrderByDescending(item => item.CreatedAt)
-        .ToListAsync();
-})
-.WithName("GetEnquiries");
-
 app.Run();
 
 record ContactEnquiry(string Name, string Email, string Message);
