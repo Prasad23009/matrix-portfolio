@@ -1,0 +1,48 @@
+name: Deploy Matrix website
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download source code
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: matrix-portfolio-web/package-lock.json
+      - name: Install website packages
+        working-directory: matrix-portfolio-web
+        run: npm ci
+      - name: Build website
+        working-directory: matrix-portfolio-web
+        env:
+          BASE_PATH: /${{ github.event.repository.name }}/
+        run: npm run build
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+      - name: Upload website
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: matrix-portfolio-web/dist
+      - name: Publish website
+        id: deployment
+        uses: actions/deploy-pages@v4

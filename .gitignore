@@ -1,0 +1,23 @@
+# .NET build and local settings
+**/bin/
+**/obj/
+*.user
+*.suo
+*.bak
+appsettings.Development.json
+
+# React / Node build and local environment files
+matrix-portfolio-web/node_modules/
+matrix-portfolio-web/dist/
+matrix-portfolio-web/.env
+matrix-portfolio-web/.env.*
+!matrix-portfolio-web/.env.example
+
+# Accidental file created in the frontend folder
+matrix-portfolio-web/Program.cs
+
+# Editor and operating system files
+.vs/
+.vscode/
+.DS_Store
+Thumbs.db
