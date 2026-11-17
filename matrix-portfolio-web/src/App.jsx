@@ -1,8 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import './App.css'
 import matrixTechnology from './assets/matrix-technology.png'
+import DiagramGenerator from './components/DiagramGenerator'
+import ProjectEstimator from './components/ProjectEstimator'
+import VivaSimulator from './components/VivaSimulator'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5154/api'
+const API_URL = import.meta.env.VITE_API_URL || 'https://matrix-api-a9fk.onrender.com/api'
 const WHATSAPP_NUMBER = '916281402892'
 
 function WhatsAppIcon() {
@@ -41,13 +44,25 @@ const branchPages = {
 }
 
 function getBranchFromHash() {
-  const branchKey = window.location.hash.replace('#branch/', '')
-  return branchPages[branchKey] ? branchKey : null
+  const hash = window.location.hash
+  if (hash.startsWith('#branch/')) {
+    const branchKey = hash.replace('#branch/', '')
+    return branchPages[branchKey] ? branchKey : null
+  }
+  return null
 }
 
 function getProjectIdFromHash() {
-  const projectId = Number(window.location.hash.replace('#project/', ''))
-  return Number.isInteger(projectId) && projectId > 0 ? projectId : null
+  const hash = window.location.hash
+  if (hash.startsWith('#project/')) {
+    const projectId = Number(hash.replace('#project/', ''))
+    return Number.isInteger(projectId) && projectId > 0 ? projectId : null
+  }
+  return null
+}
+
+function isDocsHash() {
+  return window.location.hash === '#docs'
 }
 
 const branchVisuals = {
@@ -55,6 +70,131 @@ const branchVisuals = {
   IT: '#9b8cff',
   ECE: '#66e6b8',
   EEE: '#ffc94d',
+}
+
+function SnippetBlock({ language, code }) {
+  const [copied, setCopied] = useState(false)
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(code)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  return (
+    <div className="bg-gray-900 rounded-lg overflow-hidden my-4 border border-gray-700 text-left">
+      <div className="bg-gray-800 px-4 py-2 flex justify-between items-center text-xs text-gray-400">
+        <span>{language.toUpperCase()}</span>
+        <button
+          onClick={handleCopy}
+          className="bg-indigo-600 text-white px-2.5 py-1 rounded hover:bg-indigo-500 transition-colors cursor-pointer"
+        >
+          {copied ? 'Copied!' : 'Copy Code'}
+        </button>
+      </div>
+      <pre className="p-4 text-sm text-gray-200 overflow-x-auto font-mono m-0 bg-gray-950">
+        <code>{code}</code>
+      </pre>
+    </div>
+  )
+}
+
+function DocsView({ profile }) {
+  const apiUrl = "https://matrix-api-a9fk.onrender.com"
+
+  return (
+    <main className="branch-page">
+      <section className="branch-hero" id="top">
+        <nav className="nav">
+          <a className="brand" href="#top"><span className="brand-mark">M</span><span>{profile.businessName}</span></a>
+          <a className="nav-cta" href="#top">← Back to Matrix</a>
+        </nav>
+        <div className="branch-hero-content reveal">
+          <p className="eyebrow">DEVELOPER PORTAL / API DOCS</p>
+          <p className="branch-name">Matrix API Documentation</p>
+          <h1>Integration & Endpoints Reference</h1>
+          <p className="hero-copy">Explore backend integration capabilities, health diagnostics, and student project inquiry submissions.</p>
+        </div>
+      </section>
+
+      <section className="section" style={{ maxWidth: '900px', margin: '0 auto', padding: '40px 20px' }}>
+        <div className="section-heading compact">
+          <div>
+            <p className="eyebrow">BASE CONFIGURATION</p>
+            <h2>Connection Endpoints</h2>
+          </div>
+          <p>Production API Base URL: <code style={{ color: '#59d7ff', background: '#111827', padding: '4px 8px', borderRadius: '4px' }}>{apiUrl}</code></p>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginTop: '24px' }}>
+          <div className="service-card" style={{ padding: '24px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+              <span style={{ background: '#059669', color: '#fff', padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 'bold' }}>GET</span>
+              <code style={{ fontSize: '1.1rem', color: '#f3f4f6' }}>/health</code>
+            </div>
+            <p style={{ color: '#9ca3af', fontSize: '0.9rem' }}>Returns current service operational health status.</p>
+            <SnippetBlock language="bash" code={`curl -X GET ${apiUrl}/health`} />
+          </div>
+
+          <div className="service-card" style={{ padding: '24px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+              <span style={{ background: '#059669', color: '#fff', padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 'bold' }}>GET</span>
+              <code style={{ fontSize: '1.1rem', color: '#f3f4f6' }}>/api/projects</code>
+            </div>
+            <p style={{ color: '#9ca3af', fontSize: '0.9rem' }}>Fetches all active final year technical projects. Supports optional branch query filters.</p>
+            <SnippetBlock language="bash" code={`curl -X GET "${apiUrl}/api/projects?branch=CSE"`} />
+          </div>
+
+          <div className="service-card" style={{ padding: '24px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+              <span style={{ background: '#2563eb', color: '#fff', padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 'bold' }}>POST</span>
+              <code style={{ fontSize: '1.1rem', color: '#f3f4f6' }}>/api/enquiries</code>
+            </div>
+            <p style={{ color: '#9ca3af', fontSize: '0.9rem' }}>Submits a student guidance enquiry or project discussion request directly to Matrix backend.</p>
+            <SnippetBlock language="json" code={`curl -X POST ${apiUrl}/api/enquiries \\\n  -H "Content-Type: application/json" \\\n  -d '{"name":"Student Name","email":"student@uni.edu","message":"Need guidance on IoT project architecture"}'`} />
+          </div>
+        </div>
+      </section>
+
+      <footer>
+        <a className="brand" href="#top"><span className="brand-mark">M</span><span>{profile.businessName}</span></a>
+        <span>Learning-focused technical guidance</span>
+        <span>© {new Date().getFullYear()}</span>
+      </footer>
+    </main>
+  )
+}
+
+function ProjectFilter({ selectedBranch, setSelectedBranch }) {
+  const branches = ["ALL", "CSE", "IT", "ECE", "EEE"]
+  return (
+    <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', margin: '16px 0 24px 0' }}>
+      {branches.map((branch) => {
+        const isActive = selectedBranch === branch
+        return (
+          <button
+            key={branch}
+            type="button"
+            onClick={() => setSelectedBranch(branch)}
+            style={{
+              padding: '8px 18px',
+              borderRadius: '9999px',
+              fontSize: '0.85rem',
+              fontWeight: '700',
+              cursor: 'pointer',
+              border: isActive ? '1px solid #6366f1' : '1px solid #374151',
+              backgroundColor: isActive ? '#4f46e5' : '#1f2937',
+              color: '#ffffff',
+              boxShadow: isActive ? '0 0 12px rgba(79, 70, 229, 0.5)' : 'none',
+              transition: 'all 0.15s ease-in-out',
+            }}
+          >
+            {branch}
+          </button>
+        )
+      })}
+    </div>
+  )
 }
 
 function ProjectCard({ project, index }) {
@@ -123,7 +263,7 @@ function ProjectDetail({ project, profile }) {
 }
 
 function BranchPage({ branch, projects, profile, form, status, updateForm, submitEnquiry }) {
-  const branchProjects = projects.filter((project) => project.branch === branch.shortName)
+  const branchProjects = projects.filter((project) => (project.branch || '').trim().toUpperCase() === branch.shortName)
 
   return (
     <main className="branch-page">
@@ -172,8 +312,10 @@ function BranchPage({ branch, projects, profile, form, status, updateForm, submi
 function App() {
   const [profile, setProfile] = useState(fallbackProfile)
   const [projects, setProjects] = useState([
-    { id: 1, title: 'Business Website', description: 'A responsive website for a small business.', technologies: ['HTML', 'CSS', 'JavaScript'] },
-    { id: 2, title: 'Customer Enquiry API', description: 'An API for receiving and managing customer enquiries.', technologies: ['ASP.NET Core', '.NET 10', 'PostgreSQL'] },
+    { id: 1, title: 'Autonomous multi-agent system for automated code review & refactoring', branch: 'CSE', description: 'Multi-agent AI framework analyzing security, performance, and code idioms with automated PR generation.', technologies: ['Python', 'LangChain', 'OpenAI API', 'AST', 'Git'] },
+    { id: 16, title: 'Multi-cloud cost optimization & automated resource rightsizing engine', branch: 'IT', description: 'Scans multi-cloud environments, identifies idle infrastructure, and applies Terraform script adjustments.', technologies: ['Terraform', 'Python', 'AWS Boto3', 'Prometheus'] },
+    { id: 31, title: 'Edge-computed computer vision pipeline for smart traffic & parking management', branch: 'ECE', description: 'Local video stream processing on edge devices to detect parking vacancies and traffic density.', technologies: ['Python', 'YOLOv8', 'OpenCV', 'MQTT', 'Jetson Nano'] },
+    { id: 46, title: 'Smart grid energy consumption forecasting & load-shedding simulator', branch: 'EEE', description: 'Machine learning dashboard predicting peak load demand and simulating regional substation balancing.', technologies: ['Python', 'XGBoost', 'Pandas', 'Streamlit'] },
   ])
   const [form, setForm] = useState({
     name: '',
@@ -184,6 +326,7 @@ function App() {
   const [status, setStatus] = useState(null)
   const [branchKey, setBranchKey] = useState(getBranchFromHash)
   const [projectId, setProjectId] = useState(getProjectIdFromHash)
+  const [showDocs, setShowDocs] = useState(isDocsHash)
   const [projectFilter, setProjectFilter] = useState('ALL')
   const [projectSearch, setProjectSearch] = useState('')
   const [menuOpen, setMenuOpen] = useState(false)
@@ -230,7 +373,7 @@ function App() {
 
     elements.forEach((element) => observer.observe(element))
     return () => observer.disconnect()
-  }, [branchKey, projects])
+  }, [branchKey, showDocs, projects])
 
   function moveHero(event) {
     const hero = heroRef.current
@@ -252,12 +395,13 @@ function App() {
   }
 
   useEffect(() => {
-    function updateBranchPage() {
+    function updateRouting() {
       setBranchKey(getBranchFromHash())
       setProjectId(getProjectIdFromHash())
+      setShowDocs(isDocsHash())
     }
-    window.addEventListener('hashchange', updateBranchPage)
-    return () => window.removeEventListener('hashchange', updateBranchPage)
+    window.addEventListener('hashchange', updateRouting)
+    return () => window.removeEventListener('hashchange', updateRouting)
   }, [])
 
   function updateForm(event) {
@@ -272,8 +416,14 @@ function App() {
   }
 
   const filteredProjects = projects.filter((project) => {
-    const matchesBranch = projectFilter === 'ALL' || project.branch === projectFilter
-    const searchText = `${project.title} ${project.description} ${(project.technologies ?? []).join(' ')}`.toLowerCase()
+    if (projectFilter === 'ALL') return false
+
+    const pBranch = String(project.branch || '').trim().toUpperCase()
+    const targetFilter = String(projectFilter || '').trim().toUpperCase()
+
+    const matchesBranch = pBranch === targetFilter
+
+    const searchText = `${project.title || ''} ${project.description || ''} ${(project.technologies ?? []).join(' ')}`.toLowerCase()
     return matchesBranch && searchText.includes(projectSearch.toLowerCase())
   })
 
@@ -318,6 +468,10 @@ function App() {
     return <ProjectDetail project={selectedProject} profile={profile} />
   }
 
+  if (showDocs) {
+    return <DocsView profile={profile} />
+  }
+
   if (branchKey) {
     return <BranchPage branch={branchPages[branchKey]} projects={projects} profile={profile} form={form} status={status} updateForm={updateForm} submitEnquiry={submitEnquiry} />
   }
@@ -346,6 +500,7 @@ function App() {
           <div id="mobile-navigation" className={`nav-links ${menuOpen ? 'is-open' : ''}`}>
             <a href="#services" onClick={(event) => { event.preventDefault(); goToSection('services') }}>Services</a>
             <a href="#projects" onClick={(event) => { event.preventDefault(); goToSection('projects') }}>Projects</a>
+            <a href="#docs" onClick={(event) => { event.preventDefault(); window.location.hash = 'docs' }}>API Docs</a>
             <a href="#contact" onClick={(event) => { event.preventDefault(); goToSection('contact') }}>Contact</a>
           </div>
 
@@ -366,7 +521,7 @@ function App() {
 
           <div className="hero-actions">
             <a className="button primary" href="#contact">Start a conversation <span>→</span></a>
-            <a className="button secondary" href="#services">Explore services</a>
+            <a className="button secondary" href="#docs" onClick={(e) => { e.preventDefault(); window.location.hash = 'docs'; }}>API Docs & Code</a>
             <a className="button secondary whatsapp-button" href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent('Hello Matrix, I need guidance for my final year project.')}`} target="_blank" rel="noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}><WhatsAppIcon /> WhatsApp Quick Chat</a>
           </div>
 
@@ -423,26 +578,52 @@ function App() {
       <section className="section" id="projects">
         <div className="section-heading scroll-reveal">
           <div>
-            <p className="eyebrow">03 / PORTFOLIO</p>
+            <p className="eyebrow">03 / PORTFOLIO & FILTER</p>
             <h2>Examples of technical work.</h2>
           </div>
-          <p>Explore the kind of digital work, problem-solving, and technology that Matrix supports.</p>
+          <p>Choose your engineering branch below to view focused project ideas.</p>
         </div>
 
-        <div className="project-filters scroll-reveal">
-          <input type="search" value={projectSearch} onChange={(event) => setProjectSearch(event.target.value)} placeholder="Search projects or tools (e.g. Python, IoT, React)" aria-label="Search projects or tools" />
-          <select value={projectFilter} onChange={(event) => setProjectFilter(event.target.value)} aria-label="Filter projects by branch"><option value="ALL">All branches</option><option value="CSE">CSE</option><option value="IT">IT</option><option value="ECE">ECE</option><option value="EEE">EEE</option></select>
+        <div className="project-filters scroll-reveal" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <input type="search" value={projectSearch} onChange={(event) => setProjectSearch(event.target.value)} placeholder="Search projects or tools (e.g. Python, IoT, React)" aria-label="Search projects or tools" style={{ padding: '12px', borderRadius: '8px', background: '#111827', border: '1px solid #374151', color: '#fff' }} />
+          <ProjectFilter selectedBranch={projectFilter} setSelectedBranch={setProjectFilter} />
         </div>
 
         <div className="project-grid">
-          {(projectFilter === 'ALL' && !projectSearch ? filteredProjects.slice(0, 6) : filteredProjects).map((project, index) => <ProjectCard project={project} index={index} key={project.id} />)}
+          {filteredProjects.map((project, index) => <ProjectCard project={project} index={index} key={project.id} />)}
         </div>
-        {filteredProjects.length === 0 && <p className="project-empty">No matching projects found. Try another keyword or branch.</p>}
+        {filteredProjects.length === 0 && (
+          <p className="project-empty" style={{ textAlign: 'center', padding: '40px 0', color: '#9ca3af' }}>
+            {projectFilter === 'ALL' 
+              ? '👆 Select a branch above (CSE, IT, ECE, EEE) to view available final-year projects.' 
+              : 'No matching projects found for this selection.'}
+          </p>
+        )}
       </section>
+
+      <section className="section" style={{ maxWidth: '900px', margin: '40px auto', padding: '0 20px' }}>
+        <div className="section-heading scroll-reveal">
+          <div>
+            <p className="eyebrow">04 / QUICK REFERENCE SNIPPET</p>
+            <h2>Sample Integration Code</h2>
+          </div>
+          <p>Easily grab quick API snippets for your lab assignments and presentations.</p>
+        </div>
+        <SnippetBlock language="javascript" code={`// Fetch projects directly from Matrix Backend API\nfetch('https://matrix-api-a9fk.onrender.com/api/projects')\n  .then(res => res.json())\n  .then(data => console.log(data));`} />
+      </section>
+
+      {/* Interactive Architecture Diagram Generator */}
+      <DiagramGenerator />
+
+      {/* Interactive AI Timeline Estimator */}
+      <ProjectEstimator />
+
+      {/* Interactive Viva Voce Mock Simulator */}
+      <VivaSimulator />
 
       <section className="contact-section" id="contact">
         <div className="contact-copy scroll-reveal">
-          <p className="eyebrow">04 / CONTACT MATRIX</p>
+          <p className="eyebrow">07 / CONTACT MATRIX</p>
           <h2>Let&apos;s turn your question into a clear next step.</h2>
           <p>Tell us what you are working on and which type of guidance would help most. We&apos;ll receive your enquiry securely.</p>
           <div className="contact-links">
@@ -453,7 +634,7 @@ function App() {
         </div>
 
         <form className="contact-form scroll-reveal" onSubmit={submitEnquiry}>
-          <div className="form-title"><span>YOUR ENQUIRY</span><span>01 / 01</span></div>
+          <div className="form-title"><span>STUDENT ENQUIRY</span><span>01 / 01</span></div>
           <label>
             Your name
             <input name="name" value={form.name} onChange={updateForm} required placeholder="Enter your name" />
