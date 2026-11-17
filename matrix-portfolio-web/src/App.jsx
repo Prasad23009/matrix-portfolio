@@ -60,19 +60,38 @@ const branchVisuals = {
 function ProjectCard({ project, index }) {
   const tools = project.technologies ?? []
   const accent = branchVisuals[project.branch] ?? '#f5c14f'
+  const branchText = project.branch || 'MATRIX'
+  const whatsappProjectText = encodeURIComponent(`Hello Matrix, I am interested in project #${project.id} (${branchText}): ${project.title}`)
 
   return <article className="project-card scroll-reveal">
     <div className="project-visual" style={{ '--project-accent': accent }}>
-      <div className="visual-meta"><span>{project.branch || 'MATRIX'}</span><span>0{index + 1}</span></div>
+      <div className="visual-meta"><span>{branchText}</span><span>0{index + 1}</span></div>
       <div className="visual-circuit"><i /><i /><i /></div>
       <div className="visual-tools">{tools.slice(0, 3).map((tool) => <span key={tool}>{tool}</span>)}</div>
     </div>
-    <p className="project-number">PROJECT / {String(index + 1).padStart(2, '0')}</p>
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '14px' }}>
+      <p className="project-number" style={{ margin: 0 }}>PROJECT / {String(index + 1).padStart(2, '0')}</p>
+      <span style={{ fontSize: '0.72rem', background: '#1f2937', color: '#f5c14f', padding: '2px 8px', borderRadius: '4px', fontWeight: '600' }}>Ready-to-Build</span>
+    </div>
     <h3>{project.title}</h3>
     <p>{project.description}</p>
     <p className="tools-label">Tools used</p>
     <div className="tags">{tools.map((technology) => <span key={technology}>{technology}</span>)}</div>
-    <a className="project-detail-link" href={`#project/${project.id}`}>View project details <span>↗</span></a>
+    
+    <div className="deliverables-box" style={{ background: '#0a0d12', padding: '12px', borderRadius: '8px', fontSize: '0.85rem', color: '#b9c0cb', border: '1px solid #29313d', margin: '16px 0' }}>
+      <strong style={{ color: '#f5c14f', display: 'block', marginBottom: '6px' }}>📦 What You Get:</strong>
+      <ul style={{ margin: 0, paddingLeft: '18px', lineHeight: '1.5' }}>
+        <li>Complete Source Code & Setup Guide</li>
+        <li>Architecture & Flow Diagrams</li>
+        <li>Project Report & PPT Presentation</li>
+        <li>1-on-1 Viva & Debugging Support</li>
+      </ul>
+    </div>
+
+    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '14px' }}>
+      <a className="project-detail-link" href={`#project/${project.id}`} style={{ flex: '1', textAlign: 'center', padding: '10px 12px', border: '1px solid #3a4350', borderRadius: '8px' }}>View details <span>↗</span></a>
+      <a className="button secondary whatsapp-button" href={`https://wa.me/${WHATSAPP_NUMBER}?text=${whatsappProjectText}`} target="_blank" rel="noreferrer" style={{ flex: '1', textAlign: 'center', padding: '10px 12px', fontSize: '0.82rem', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}><WhatsAppIcon /> Request on WhatsApp</a>
+    </div>
   </article>
 }
 
@@ -330,7 +349,10 @@ function App() {
             <a href="#contact" onClick={(event) => { event.preventDefault(); goToSection('contact') }}>Contact</a>
           </div>
 
-          <a className="nav-cta" href="#contact">Let&apos;s talk <span>↗</span></a>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <a className="button secondary whatsapp-button" href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent('Hello Matrix, I would like to chat about project guidance.')}`} target="_blank" rel="noreferrer" style={{ padding: '8px 12px', fontSize: '0.82rem', display: 'inline-flex', alignItems: 'center', gap: '6px' }}><WhatsAppIcon /> WhatsApp</a>
+            <a className="nav-cta" href="#contact">Let&apos;s talk <span>↗</span></a>
+          </div>
         </nav>
 
         <div className="hero-visual" aria-hidden="true">
@@ -345,6 +367,7 @@ function App() {
           <div className="hero-actions">
             <a className="button primary" href="#contact">Start a conversation <span>→</span></a>
             <a className="button secondary" href="#services">Explore services</a>
+            <a className="button secondary whatsapp-button" href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent('Hello Matrix, I need guidance for my final year project.')}`} target="_blank" rel="noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}><WhatsAppIcon /> WhatsApp Quick Chat</a>
           </div>
 
           <div className="hero-proof">
@@ -406,7 +429,10 @@ function App() {
           <p>Explore the kind of digital work, problem-solving, and technology that Matrix supports.</p>
         </div>
 
-        <div className="project-filters scroll-reveal"><input type="search" value={projectSearch} onChange={(event) => setProjectSearch(event.target.value)} placeholder="Search projects or tools" aria-label="Search projects or tools" /><select value={projectFilter} onChange={(event) => setProjectFilter(event.target.value)} aria-label="Filter projects by branch"><option value="ALL">All branches</option><option value="CSE">CSE</option><option value="IT">IT</option><option value="ECE">ECE</option><option value="EEE">EEE</option></select></div>
+        <div className="project-filters scroll-reveal">
+          <input type="search" value={projectSearch} onChange={(event) => setProjectSearch(event.target.value)} placeholder="Search projects or tools (e.g. Python, IoT, React)" aria-label="Search projects or tools" />
+          <select value={projectFilter} onChange={(event) => setProjectFilter(event.target.value)} aria-label="Filter projects by branch"><option value="ALL">All branches</option><option value="CSE">CSE</option><option value="IT">IT</option><option value="ECE">ECE</option><option value="EEE">EEE</option></select>
+        </div>
 
         <div className="project-grid">
           {(projectFilter === 'ALL' && !projectSearch ? filteredProjects.slice(0, 6) : filteredProjects).map((project, index) => <ProjectCard project={project} index={index} key={project.id} />)}

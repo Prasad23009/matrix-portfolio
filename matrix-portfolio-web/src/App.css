@@ -123,5 +123,9 @@ footer { display: flex; align-items: center; justify-content: space-between; gap
 .resource-empty h3 { margin: 0 0 8px; font-size: 1.1rem; }
 .resource-empty p { margin: 0; color: #aeb4bf; line-height: 1.65; }
 
+/* Never leave content invisible if a browser delays IntersectionObserver events. */
+.scroll-reveal { opacity: 1; transform: none; transition: none; }
+.project-grid, .branch-list, .focus-grid { content-visibility: auto; contain-intrinsic-size: auto 700px; }
+
 @media (max-width: 900px) { .resource-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .resource-empty { grid-template-columns: auto 1fr; } .resource-empty .button { grid-column: 2; justify-self: start; } }
 @media (max-width: 560px) { .resource-grid { grid-template-columns: 1fr; margin-top: 30px; } .resource-card { min-height: 200px; padding: 20px; } .resource-empty { grid-template-columns: 1fr; gap: 16px; margin-top: 30px; padding: 20px; } .resource-empty .button { grid-column: auto; width: 100%; } }
