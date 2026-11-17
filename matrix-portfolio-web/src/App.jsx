@@ -5,6 +5,10 @@ import matrixTechnology from './assets/matrix-technology.png'
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5154/api'
 const WHATSAPP_NUMBER = '916281402892'
 
+function WhatsAppIcon() {
+  return <svg className="whatsapp-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 0 0-7.68 13.69L3 21l4.45-1.25A9 9 0 1 0 12 3Z" fill="currentColor" /><path d="M9.25 7.7c-.17-.4-.35-.4-.52-.4h-.44c-.16 0-.42.06-.64.3-.22.24-.84.82-.84 2s.86 2.32.98 2.48c.12.16 1.69 2.7 4.16 3.68 2.05.81 2.47.65 2.92.61.45-.04 1.45-.59 1.65-1.16.2-.57.2-1.06.14-1.16-.06-.1-.22-.16-.46-.28-.24-.12-1.45-.72-1.67-.8-.22-.08-.38-.12-.54.12-.16.24-.62.8-.76.97-.14.16-.28.18-.52.06-.24-.12-1.02-.39-1.95-1.24-.72-.66-1.2-1.47-1.34-1.72-.14-.24-.02-.37.1-.49.1-.1.24-.27.36-.4.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.42-.06-.12-.55-1.39-.76-1.9Z" fill="#151a23" /></svg>
+}
+
 const fallbackProfile = {
   businessName: 'Matrix',
   headline: 'Technical project guidance for engineering students',
@@ -80,13 +84,13 @@ function ProjectDetail({ project, profile }) {
         <p className="eyebrow">{branch} / PROJECT DETAIL</p>
         <h1>{project.title}</h1>
         <p className="hero-copy">{project.description}</p>
-        <div className="detail-actions"><a className="button primary" href="#contact">Send an enquiry <span>→</span></a><a className="button whatsapp-button" href={`https://wa.me/${WHATSAPP_NUMBER}?text=${whatsappText}`} target="_blank" rel="noreferrer">WhatsApp Matrix <span>↗</span></a></div>
+        <div className="detail-actions"><a className="button primary" href="#contact">Send an enquiry <span>→</span></a><a className="button whatsapp-button" href={`https://wa.me/${WHATSAPP_NUMBER}?text=${whatsappText}`} target="_blank" rel="noreferrer"><WhatsAppIcon />WhatsApp Matrix <span>↗</span></a></div>
       </div>
     </section>
     <section className="section detail-section">
       <div className="detail-grid"><div><p className="eyebrow">TOOLS USED</p><h2>Technology stack</h2><div className="tags detail-tags">{tools.map((tool) => <span key={tool}>{tool}</span>)}</div></div><div><p className="eyebrow">LEARNING FOCUS</p><h2>Build, test, explain.</h2><p>This is a learning-focused project idea. Use it to understand the architecture, explore the tools, document your work, and present your own implementation clearly.</p></div></div>
     </section>
-    <section className="contact-section" id="contact"><div className="contact-copy"><p className="eyebrow">CONTACT MATRIX</p><h2>Discuss this project idea.</h2><p>Share what you want to learn or build, and Matrix will help you identify a clear next step.</p><div className="contact-links"><a href={`tel:${profile.publicContactPhone}`}><span>CALL</span>{profile.publicContactPhone}</a><a href={`mailto:${profile.contactEmail}`}><span>EMAIL</span>{profile.contactEmail}</a></div></div><div className="detail-contact-card"><p>{project.title}</p><a className="button whatsapp-button" href={`https://wa.me/${WHATSAPP_NUMBER}?text=${whatsappText}`} target="_blank" rel="noreferrer">Message on WhatsApp <span>↗</span></a></div></section>
+    <section className="contact-section" id="contact"><div className="contact-copy"><p className="eyebrow">CONTACT MATRIX</p><h2>Discuss this project idea.</h2><p>Share what you want to learn or build, and Matrix will help you identify a clear next step.</p><div className="contact-links"><a href={`tel:${profile.publicContactPhone}`}><span>CALL</span>{profile.publicContactPhone}</a><a href={`mailto:${profile.contactEmail}`}><span>EMAIL</span>{profile.contactEmail}</a></div></div><div className="detail-contact-card"><p>{project.title}</p><a className="button whatsapp-button" href={`https://wa.me/${WHATSAPP_NUMBER}?text=${whatsappText}`} target="_blank" rel="noreferrer"><WhatsAppIcon />Message on WhatsApp <span>↗</span></a></div></section>
   </main>
 }
 
@@ -121,7 +125,7 @@ function BranchPage({ branch, projects, profile, form, status, updateForm, submi
         ) : <p className="project-empty">Project ideas are loading. Please refresh in a moment.</p>}
       </section>
       <section className="contact-section branch-contact" id="branch-contact">
-        <div className="contact-copy reveal"><p className="eyebrow">CONTACT MATRIX / {branch.shortName}</p><h2>Share your {branch.shortName} question or project idea.</h2><p>Describe what you are learning, building, or reviewing. Your enquiry will be sent to Matrix securely.</p><div className="contact-links"><a href={`tel:${profile.publicContactPhone}`}><span>CALL</span>{profile.publicContactPhone}</a><a href={`mailto:${profile.contactEmail}`}><span>EMAIL</span>{profile.contactEmail}</a><a className="whatsapp-link" href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(`Hello Matrix, I have a ${branch.shortName} project question.`)}`} target="_blank" rel="noreferrer"><span>WHATSAPP</span>Chat with Matrix</a></div></div>
+        <div className="contact-copy reveal"><p className="eyebrow">CONTACT MATRIX / {branch.shortName}</p><h2>Share your {branch.shortName} question or project idea.</h2><p>Describe what you are learning, building, or reviewing. Your enquiry will be sent to Matrix securely.</p><div className="contact-links"><a href={`tel:${profile.publicContactPhone}`}><span>CALL</span>{profile.publicContactPhone}</a><a href={`mailto:${profile.contactEmail}`}><span>EMAIL</span>{profile.contactEmail}</a><a className="whatsapp-link" href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(`Hello Matrix, I have a ${branch.shortName} project question.`)}`} target="_blank" rel="noreferrer"><span>WHATSAPP</span><b><WhatsAppIcon />Chat with Matrix</b></a></div></div>
         <form className="contact-form reveal" onSubmit={(event) => submitEnquiry(event, branch.shortName)}>
           <div className="form-title"><span>{branch.shortName} ENQUIRY</span><span>01 / 01</span></div>
           <label>Your name<input name="name" value={form.name} onChange={updateForm} required placeholder="Enter your name" /></label>
@@ -409,7 +413,7 @@ function App() {
           <div className="contact-links">
             <a href={`tel:${profile.publicContactPhone}`}><span>CALL</span>{profile.publicContactPhone}</a>
             <a href={`mailto:${profile.contactEmail}`}><span>EMAIL</span>{profile.contactEmail}</a>
-            <a className="whatsapp-link" href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent('Hello Matrix, I would like to ask about technical project guidance.')}`} target="_blank" rel="noreferrer"><span>WHATSAPP</span>Chat with Matrix</a>
+            <a className="whatsapp-link" href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent('Hello Matrix, I would like to ask about technical project guidance.')}`} target="_blank" rel="noreferrer"><span>WHATSAPP</span><b><WhatsAppIcon />Chat with Matrix</b></a>
           </div>
         </div>
 
