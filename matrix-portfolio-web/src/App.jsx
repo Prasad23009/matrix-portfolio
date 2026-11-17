@@ -36,6 +36,31 @@ function getBranchFromHash() {
   return branchPages[branchKey] ? branchKey : null
 }
 
+const branchVisuals = {
+  CSE: '#59d7ff',
+  IT: '#9b8cff',
+  ECE: '#66e6b8',
+  EEE: '#ffc94d',
+}
+
+function ProjectCard({ project, index }) {
+  const tools = project.technologies ?? []
+  const accent = branchVisuals[project.branch] ?? '#f5c14f'
+
+  return <article className="project-card scroll-reveal">
+    <div className="project-visual" style={{ '--project-accent': accent }}>
+      <div className="visual-meta"><span>{project.branch || 'MATRIX'}</span><span>0{index + 1}</span></div>
+      <div className="visual-circuit"><i /><i /><i /></div>
+      <div className="visual-tools">{tools.slice(0, 3).map((tool) => <span key={tool}>{tool}</span>)}</div>
+    </div>
+    <p className="project-number">PROJECT / {String(index + 1).padStart(2, '0')}</p>
+    <h3>{project.title}</h3>
+    <p>{project.description}</p>
+    <p className="tools-label">Tools used</p>
+    <div className="tags">{tools.map((technology) => <span key={technology}>{technology}</span>)}</div>
+  </article>
+}
+
 function BranchPage({ branch, projects, profile, form, status, updateForm, submitEnquiry }) {
   const branchProjects = projects.filter((project) => project.branch === branch.shortName)
 
@@ -63,14 +88,7 @@ function BranchPage({ branch, projects, profile, form, status, updateForm, submi
       <section className="section branch-projects" id="branch-projects">
         <div className="section-heading compact scroll-reveal"><div><p className="eyebrow">PROJECT CATALOGUE / {branch.shortName}</p><h2>Explore {branch.shortName} project ideas.</h2></div></div>
         {branchProjects.length > 0 ? (
-          <div className="project-grid branch-project-grid">
-            {branchProjects.map((project, index) => <article className="project-card scroll-reveal" key={project.id}>
-              <p className="project-number">{branch.shortName} / {String(index + 1).padStart(2, '0')}</p>
-              <h3>{project.title}</h3>
-              <p>{project.description}</p>
-              <div className="tags">{project.technologies.map((technology) => <span key={technology}>{technology}</span>)}</div>
-            </article>)}
-          </div>
+          <div className="project-grid branch-project-grid">{branchProjects.map((project, index) => <ProjectCard project={project} index={index} key={project.id} />)}</div>
         ) : <p className="project-empty">Project ideas are loading. Please refresh in a moment.</p>}
       </section>
       <section className="contact-section branch-contact" id="branch-contact">
@@ -331,17 +349,7 @@ function App() {
         </div>
 
         <div className="project-grid">
-          {projects.slice(0, 6).map((project) => (
-            <article className="project-card scroll-reveal" key={project.id}>
-              <p className="project-number">PROJECT / 0{project.id}</p>
-              <h3>{project.title}</h3>
-              <p>{project.description}</p>
-              <div className="tags">
-                {project.technologies.map((technology) => <span key={technology}>{technology}</span>)}
-              </div>
-              <span className="project-arrow">↗</span>
-            </article>
-          ))}
+          {projects.slice(0, 6).map((project, index) => <ProjectCard project={project} index={index} key={project.id} />)}
         </div>
       </section>
 
