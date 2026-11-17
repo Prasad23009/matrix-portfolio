@@ -166,6 +166,13 @@ function App() {
     setForm({ ...form, [event.target.name]: event.target.value })
   }
 
+  function goToSection(sectionId) {
+    setMenuOpen(false)
+    window.requestAnimationFrame(() => {
+      document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth' })
+    })
+  }
+
   async function submitEnquiry(event, branchName = '') {
     event.preventDefault()
     setStatus({ type: 'loading', text: 'Sending your enquiry...' })
@@ -214,15 +221,22 @@ function App() {
             <span>{profile.businessName}</span>
           </a>
 
-          <button className="menu-button" type="button" onClick={() => setMenuOpen(!menuOpen)} aria-expanded={menuOpen} aria-label="Open navigation menu">
+          <button
+            className="menu-button"
+            type="button"
+            onClick={() => setMenuOpen((isOpen) => !isOpen)}
+            aria-expanded={menuOpen}
+            aria-controls="mobile-navigation"
+            aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+          >
             <span />
             <span />
           </button>
 
-          <div className={`nav-links ${menuOpen ? 'is-open' : ''}`}>
-            <a href="#services" onClick={() => setMenuOpen(false)}>Services</a>
-            <a href="#projects" onClick={() => setMenuOpen(false)}>Projects</a>
-            <a href="#contact" onClick={() => setMenuOpen(false)}>Contact</a>
+          <div id="mobile-navigation" className={`nav-links ${menuOpen ? 'is-open' : ''}`}>
+            <a href="#services" onClick={(event) => { event.preventDefault(); goToSection('services') }}>Services</a>
+            <a href="#projects" onClick={(event) => { event.preventDefault(); goToSection('projects') }}>Projects</a>
+            <a href="#contact" onClick={(event) => { event.preventDefault(); goToSection('contact') }}>Contact</a>
           </div>
 
           <a className="nav-cta" href="#contact">Let&apos;s talk <span>↗</span></a>
