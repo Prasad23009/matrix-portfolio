@@ -101,6 +101,27 @@ footer { display: flex; align-items: center; justify-content: space-between; gap
 
 @media (max-width: 760px) {
   .card-grid, .project-grid, .branch-project-grid, .focus-grid, .branch-list { grid-template-columns: 1fr; }
+  .hero-visual { opacity: .76; }
+  .hero-visual::after { background: linear-gradient(180deg, rgba(11,13,18,.08) 0%, rgba(11,13,18,.18) 42%, rgba(11,13,18,.7) 76%, #0b0d12 100%); }
+  .hero-visual img { object-position: 62% 18%; filter: saturate(1.16) contrast(1.08) brightness(1.14); }
+  .hero-content { text-shadow: 0 2px 18px rgba(4,6,10,.78); }
 }
 
 :focus-visible { outline: 3px solid #f5c14f; outline-offset: 3px; }
+
+.project-resources { background: #0d1016; }
+.resource-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 48px; }
+.resource-card { display: grid; min-height: 230px; align-content: start; gap: 14px; padding: 24px; border: 1px solid #313944; border-radius: 9px; background: #151a23; transition: transform .22s ease, border-color .22s ease, background .22s ease; }
+.resource-card:hover { border-color: #f5c14f; background: #1a202a; transform: translateY(-5px); }
+.document-icon { width: 30px; height: 30px; color: #f5c14f; }
+.resource-type { color: #9da5b2; font-family: 'DM Mono', monospace; font-size: .66rem; letter-spacing: .1em; }
+.resource-card h3 { margin: 0; font-size: 1.14rem; line-height: 1.32; letter-spacing: -.03em; }
+.resource-action { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 14px; border-top: 1px solid #303844; color: #f5c14f; font-size: .8rem; font-weight: 800; }
+.resource-action b { font-size: 1rem; transition: transform .2s ease; }
+.resource-card:hover .resource-action b { transform: translate(3px, -3px); }
+.resource-empty { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 24px; margin-top: 48px; padding: 28px; border: 1px dashed #47515f; border-radius: 9px; background: #151a23; }
+.resource-empty h3 { margin: 0 0 8px; font-size: 1.1rem; }
+.resource-empty p { margin: 0; color: #aeb4bf; line-height: 1.65; }
+
+@media (max-width: 900px) { .resource-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .resource-empty { grid-template-columns: auto 1fr; } .resource-empty .button { grid-column: 2; justify-self: start; } }
+@media (max-width: 560px) { .resource-grid { grid-template-columns: 1fr; margin-top: 30px; } .resource-card { min-height: 200px; padding: 20px; } .resource-empty { grid-template-columns: 1fr; gap: 16px; margin-top: 30px; padding: 20px; } .resource-empty .button { grid-column: auto; width: 100%; } }
