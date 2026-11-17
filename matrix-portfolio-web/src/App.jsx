@@ -21,7 +21,7 @@ const fallbackProfile = {
     'Electrical and Electronics Engineering',
   ],
   publicContactPhone: '6281402892',
-  contactEmail: 'mldprasad2003@gmail.com',
+  contactEmail: 'matrix071705@gmail.com',
 }
 
 const branchPages = {

@@ -65,7 +65,7 @@ app.MapGet("/api/profile", () => new
         "Documentation and presentation guidance"
     },
     publicContactPhone = "6281402892",
-    contactEmail = "mldprasad2003@gmail.com"
+    contactEmail = "matrix071705@gmail.com"
 })
 .WithName("GetPortfolioProfile");
 
