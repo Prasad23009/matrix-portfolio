@@ -71,17 +71,17 @@ app.MapGet("/api/profile", () => new
 
 app.MapGet("/api/projects", async (string? branch, PortfolioDbContext database) =>
 {
-    var projects = database.Projects
+    IQueryable<Project> projectsQuery = database.Projects
         .AsNoTracking()
         .Include(project => project.Documents);
 
     if (!string.IsNullOrWhiteSpace(branch))
     {
         var normalizedBranch = branch.Trim().ToUpperInvariant();
-        projects = projects.Where(project => project.Branch == normalizedBranch);
+        projectsQuery = projectsQuery.Where(project => project.Branch == normalizedBranch);
     }
 
-    return await projects
+    return await projectsQuery
         .OrderBy(project => project.Branch)
         .ThenBy(project => project.Id)
         .ToListAsync();
