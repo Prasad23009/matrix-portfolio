@@ -36,7 +36,9 @@ function getBranchFromHash() {
   return branchPages[branchKey] ? branchKey : null
 }
 
-function BranchPage({ branch, profile, form, status, updateForm, submitEnquiry }) {
+function BranchPage({ branch, projects, profile, form, status, updateForm, submitEnquiry }) {
+  const branchProjects = projects.filter((project) => project.branch === branch.shortName)
+
   return (
     <main className="branch-page">
       <section className="branch-hero" id="top">
@@ -57,6 +59,19 @@ function BranchPage({ branch, profile, form, status, updateForm, submitEnquiry }
         <div className="focus-grid">
           {branch.topics.map((topic, index) => <article className="focus-card reveal" key={topic}><span>0{index + 1}</span><h3>{topic}</h3></article>)}
         </div>
+      </section>
+      <section className="section branch-projects" id="branch-projects">
+        <div className="section-heading compact scroll-reveal"><div><p className="eyebrow">PROJECT CATALOGUE / {branch.shortName}</p><h2>Explore {branch.shortName} project ideas.</h2></div></div>
+        {branchProjects.length > 0 ? (
+          <div className="project-grid branch-project-grid">
+            {branchProjects.map((project, index) => <article className="project-card scroll-reveal" key={project.id}>
+              <p className="project-number">{branch.shortName} / {String(index + 1).padStart(2, '0')}</p>
+              <h3>{project.title}</h3>
+              <p>{project.description}</p>
+              <div className="tags">{project.technologies.map((technology) => <span key={technology}>{technology}</span>)}</div>
+            </article>)}
+          </div>
+        ) : <p className="project-empty">Project ideas are loading. Please refresh in a moment.</p>}
       </section>
       <section className="contact-section branch-contact" id="branch-contact">
         <div className="contact-copy reveal"><p className="eyebrow">CONTACT MATRIX / {branch.shortName}</p><h2>Share your {branch.shortName} question or project idea.</h2><p>Describe what you are learning, building, or reviewing. Your enquiry will be sent to Matrix securely.</p><div className="contact-links"><a href={`tel:${profile.publicContactPhone}`}><span>CALL</span>{profile.publicContactPhone}</a><a href={`mailto:${profile.contactEmail}`}><span>EMAIL</span>{profile.contactEmail}</a></div></div>
@@ -133,7 +148,7 @@ function App() {
 
     elements.forEach((element) => observer.observe(element))
     return () => observer.disconnect()
-  }, [branchKey])
+  }, [branchKey, projects])
 
   function moveHero(event) {
     const hero = heroRef.current
@@ -209,7 +224,7 @@ function App() {
   }
 
   if (branchKey) {
-    return <BranchPage branch={branchPages[branchKey]} profile={profile} form={form} status={status} updateForm={updateForm} submitEnquiry={submitEnquiry} />
+    return <BranchPage branch={branchPages[branchKey]} projects={projects} profile={profile} form={form} status={status} updateForm={updateForm} submitEnquiry={submitEnquiry} />
   }
 
   return (
@@ -316,7 +331,7 @@ function App() {
         </div>
 
         <div className="project-grid">
-          {projects.map((project) => (
+          {projects.slice(0, 6).map((project) => (
             <article className="project-card scroll-reveal" key={project.id}>
               <p className="project-number">PROJECT / 0{project.id}</p>
               <h3>{project.title}</h3>

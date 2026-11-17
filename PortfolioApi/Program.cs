@@ -69,22 +69,20 @@ app.MapGet("/api/profile", () => new
 })
 .WithName("GetPortfolioProfile");
 
-app.MapGet("/api/projects", () => new[]
+app.MapGet("/api/projects", async (string? branch, PortfolioDbContext database) =>
 {
-    new
+    var projects = database.Projects.AsNoTracking();
+
+    if (!string.IsNullOrWhiteSpace(branch))
     {
-        id = 1,
-        title = "Business Website",
-        description = "A responsive website for a small business.",
-        technologies = new[] { "HTML", "CSS", "JavaScript" }
-    },
-    new
-    {
-        id = 2,
-        title = "Customer Enquiry API",
-        description = "An API for receiving and managing customer enquiries.",
-        technologies = new[] { "ASP.NET Core", ".NET 10", "PostgreSQL" }
+        var normalizedBranch = branch.Trim().ToUpperInvariant();
+        projects = projects.Where(project => project.Branch == normalizedBranch);
     }
+
+    return await projects
+        .OrderBy(project => project.Branch)
+        .ThenBy(project => project.Id)
+        .ToListAsync();
 })
 .WithName("GetPortfolioProjects");
 
@@ -122,10 +120,20 @@ class Enquiry
     public DateTimeOffset CreatedAt { get; set; }
 }
 
+class Project
+{
+    public int Id { get; set; }
+    public string Title { get; set; } = string.Empty;
+    public string Branch { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+    public string[] Technologies { get; set; } = [];
+}
+
 class PortfolioDbContext(DbContextOptions<PortfolioDbContext> options)
     : DbContext(options)
 {
     public DbSet<Enquiry> Enquiries => Set<Enquiry>();
+    public DbSet<Project> Projects => Set<Project>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -136,5 +144,14 @@ class PortfolioDbContext(DbContextOptions<PortfolioDbContext> options)
         enquiry.Property(item => item.Name).HasMaxLength(120).IsRequired();
         enquiry.Property(item => item.Email).HasMaxLength(320).IsRequired();
         enquiry.Property(item => item.Message).HasMaxLength(2000).IsRequired();
+
+        var project = modelBuilder.Entity<Project>();
+        project.ToTable("projects");
+        project.HasKey(item => item.Id);
+        project.Property(item => item.Id).HasColumnName("id");
+        project.Property(item => item.Title).HasColumnName("title").HasMaxLength(300).IsRequired();
+        project.Property(item => item.Branch).HasColumnName("branch").HasMaxLength(8).IsRequired();
+        project.Property(item => item.Description).HasColumnName("description").HasMaxLength(2000).IsRequired();
+        project.Property(item => item.Technologies).HasColumnName("technologies").HasColumnType("text[]").IsRequired();
     }
 }
