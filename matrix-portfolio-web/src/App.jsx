@@ -3,6 +3,7 @@ import './App.css'
 import matrixTechnology from './assets/matrix-technology.png'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5154/api'
+const WHATSAPP_NUMBER = '916281402892'
 
 const fallbackProfile = {
   businessName: 'Matrix',
@@ -36,6 +37,11 @@ function getBranchFromHash() {
   return branchPages[branchKey] ? branchKey : null
 }
 
+function getProjectIdFromHash() {
+  const projectId = Number(window.location.hash.replace('#project/', ''))
+  return Number.isInteger(projectId) && projectId > 0 ? projectId : null
+}
+
 const branchVisuals = {
   CSE: '#59d7ff',
   IT: '#9b8cff',
@@ -58,7 +64,30 @@ function ProjectCard({ project, index }) {
     <p>{project.description}</p>
     <p className="tools-label">Tools used</p>
     <div className="tags">{tools.map((technology) => <span key={technology}>{technology}</span>)}</div>
+    <a className="project-detail-link" href={`#project/${project.id}`}>View project details <span>↗</span></a>
   </article>
+}
+
+function ProjectDetail({ project, profile }) {
+  const tools = project.technologies ?? []
+  const branch = project.branch || 'MATRIX'
+  const whatsappText = encodeURIComponent(`Hello Matrix, I would like to discuss this ${branch} project: ${project.title}`)
+
+  return <main className="project-detail-page">
+    <section className="project-detail-hero">
+      <nav className="nav"><a className="brand" href="#top"><span className="brand-mark">M</span><span>{profile.businessName}</span></a><a className="nav-cta" href={`#branch/${branch.toLowerCase()}`}>← Back to {branch} projects</a></nav>
+      <div className="project-detail-content">
+        <p className="eyebrow">{branch} / PROJECT DETAIL</p>
+        <h1>{project.title}</h1>
+        <p className="hero-copy">{project.description}</p>
+        <div className="detail-actions"><a className="button primary" href="#contact">Send an enquiry <span>→</span></a><a className="button whatsapp-button" href={`https://wa.me/${WHATSAPP_NUMBER}?text=${whatsappText}`} target="_blank" rel="noreferrer">WhatsApp Matrix <span>↗</span></a></div>
+      </div>
+    </section>
+    <section className="section detail-section">
+      <div className="detail-grid"><div><p className="eyebrow">TOOLS USED</p><h2>Technology stack</h2><div className="tags detail-tags">{tools.map((tool) => <span key={tool}>{tool}</span>)}</div></div><div><p className="eyebrow">LEARNING FOCUS</p><h2>Build, test, explain.</h2><p>This is a learning-focused project idea. Use it to understand the architecture, explore the tools, document your work, and present your own implementation clearly.</p></div></div>
+    </section>
+    <section className="contact-section" id="contact"><div className="contact-copy"><p className="eyebrow">CONTACT MATRIX</p><h2>Discuss this project idea.</h2><p>Share what you want to learn or build, and Matrix will help you identify a clear next step.</p><div className="contact-links"><a href={`tel:${profile.publicContactPhone}`}><span>CALL</span>{profile.publicContactPhone}</a><a href={`mailto:${profile.contactEmail}`}><span>EMAIL</span>{profile.contactEmail}</a></div></div><div className="detail-contact-card"><p>{project.title}</p><a className="button whatsapp-button" href={`https://wa.me/${WHATSAPP_NUMBER}?text=${whatsappText}`} target="_blank" rel="noreferrer">Message on WhatsApp <span>↗</span></a></div></section>
+  </main>
 }
 
 function BranchPage({ branch, projects, profile, form, status, updateForm, submitEnquiry }) {
@@ -92,7 +121,7 @@ function BranchPage({ branch, projects, profile, form, status, updateForm, submi
         ) : <p className="project-empty">Project ideas are loading. Please refresh in a moment.</p>}
       </section>
       <section className="contact-section branch-contact" id="branch-contact">
-        <div className="contact-copy reveal"><p className="eyebrow">CONTACT MATRIX / {branch.shortName}</p><h2>Share your {branch.shortName} question or project idea.</h2><p>Describe what you are learning, building, or reviewing. Your enquiry will be sent to Matrix securely.</p><div className="contact-links"><a href={`tel:${profile.publicContactPhone}`}><span>CALL</span>{profile.publicContactPhone}</a><a href={`mailto:${profile.contactEmail}`}><span>EMAIL</span>{profile.contactEmail}</a></div></div>
+        <div className="contact-copy reveal"><p className="eyebrow">CONTACT MATRIX / {branch.shortName}</p><h2>Share your {branch.shortName} question or project idea.</h2><p>Describe what you are learning, building, or reviewing. Your enquiry will be sent to Matrix securely.</p><div className="contact-links"><a href={`tel:${profile.publicContactPhone}`}><span>CALL</span>{profile.publicContactPhone}</a><a href={`mailto:${profile.contactEmail}`}><span>EMAIL</span>{profile.contactEmail}</a><a className="whatsapp-link" href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(`Hello Matrix, I have a ${branch.shortName} project question.`)}`} target="_blank" rel="noreferrer"><span>WHATSAPP</span>Chat with Matrix</a></div></div>
         <form className="contact-form reveal" onSubmit={(event) => submitEnquiry(event, branch.shortName)}>
           <div className="form-title"><span>{branch.shortName} ENQUIRY</span><span>01 / 01</span></div>
           <label>Your name<input name="name" value={form.name} onChange={updateForm} required placeholder="Enter your name" /></label>
@@ -122,6 +151,9 @@ function App() {
   })
   const [status, setStatus] = useState(null)
   const [branchKey, setBranchKey] = useState(getBranchFromHash)
+  const [projectId, setProjectId] = useState(getProjectIdFromHash)
+  const [projectFilter, setProjectFilter] = useState('ALL')
+  const [projectSearch, setProjectSearch] = useState('')
   const [menuOpen, setMenuOpen] = useState(false)
   const heroRef = useRef(null)
 
@@ -190,6 +222,7 @@ function App() {
   useEffect(() => {
     function updateBranchPage() {
       setBranchKey(getBranchFromHash())
+      setProjectId(getProjectIdFromHash())
     }
     window.addEventListener('hashchange', updateBranchPage)
     return () => window.removeEventListener('hashchange', updateBranchPage)
@@ -205,6 +238,12 @@ function App() {
       document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth' })
     })
   }
+
+  const filteredProjects = projects.filter((project) => {
+    const matchesBranch = projectFilter === 'ALL' || project.branch === projectFilter
+    const searchText = `${project.title} ${project.description} ${(project.technologies ?? []).join(' ')}`.toLowerCase()
+    return matchesBranch && searchText.includes(projectSearch.toLowerCase())
+  })
 
   async function submitEnquiry(event, branchName = '') {
     event.preventDefault()
@@ -239,6 +278,12 @@ function App() {
         text: 'Unable to send your enquiry. Please try again shortly.',
       })
     }
+  }
+
+  const selectedProject = projectId ? projects.find((project) => project.id === projectId) : null
+
+  if (selectedProject) {
+    return <ProjectDetail project={selectedProject} profile={profile} />
   }
 
   if (branchKey) {
@@ -348,9 +393,12 @@ function App() {
           <p>Explore the kind of digital work, problem-solving, and technology that Matrix supports.</p>
         </div>
 
+        <div className="project-filters scroll-reveal"><input type="search" value={projectSearch} onChange={(event) => setProjectSearch(event.target.value)} placeholder="Search projects or tools" aria-label="Search projects or tools" /><select value={projectFilter} onChange={(event) => setProjectFilter(event.target.value)} aria-label="Filter projects by branch"><option value="ALL">All branches</option><option value="CSE">CSE</option><option value="IT">IT</option><option value="ECE">ECE</option><option value="EEE">EEE</option></select></div>
+
         <div className="project-grid">
-          {projects.slice(0, 6).map((project, index) => <ProjectCard project={project} index={index} key={project.id} />)}
+          {(projectFilter === 'ALL' && !projectSearch ? filteredProjects.slice(0, 6) : filteredProjects).map((project, index) => <ProjectCard project={project} index={index} key={project.id} />)}
         </div>
+        {filteredProjects.length === 0 && <p className="project-empty">No matching projects found. Try another keyword or branch.</p>}
       </section>
 
       <section className="contact-section" id="contact">
@@ -361,6 +409,7 @@ function App() {
           <div className="contact-links">
             <a href={`tel:${profile.publicContactPhone}`}><span>CALL</span>{profile.publicContactPhone}</a>
             <a href={`mailto:${profile.contactEmail}`}><span>EMAIL</span>{profile.contactEmail}</a>
+            <a className="whatsapp-link" href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent('Hello Matrix, I would like to ask about technical project guidance.')}`} target="_blank" rel="noreferrer"><span>WHATSAPP</span>Chat with Matrix</a>
           </div>
         </div>
 
