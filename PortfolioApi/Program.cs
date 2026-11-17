@@ -71,7 +71,9 @@ app.MapGet("/api/profile", () => new
 
 app.MapGet("/api/projects", async (string? branch, PortfolioDbContext database) =>
 {
-    var projects = database.Projects.AsNoTracking();
+    var projects = database.Projects
+        .AsNoTracking()
+        .Include(project => project.Documents);
 
     if (!string.IsNullOrWhiteSpace(branch))
     {
@@ -127,6 +129,17 @@ class Project
     public string Branch { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public string[] Technologies { get; set; } = [];
+    public List<ProjectDocument> Documents { get; set; } = [];
+}
+
+class ProjectDocument
+{
+    public int Id { get; set; }
+    public int ProjectId { get; set; }
+    public string Title { get; set; } = string.Empty;
+    public string DocumentType { get; set; } = "PDF";
+    public string PublicUrl { get; set; } = string.Empty;
+    public int DisplayOrder { get; set; }
 }
 
 class PortfolioDbContext(DbContextOptions<PortfolioDbContext> options)
@@ -134,6 +147,7 @@ class PortfolioDbContext(DbContextOptions<PortfolioDbContext> options)
 {
     public DbSet<Enquiry> Enquiries => Set<Enquiry>();
     public DbSet<Project> Projects => Set<Project>();
+    public DbSet<ProjectDocument> ProjectDocuments => Set<ProjectDocument>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -153,5 +167,19 @@ class PortfolioDbContext(DbContextOptions<PortfolioDbContext> options)
         project.Property(item => item.Branch).HasColumnName("branch").HasMaxLength(8).IsRequired();
         project.Property(item => item.Description).HasColumnName("description").HasMaxLength(2000).IsRequired();
         project.Property(item => item.Technologies).HasColumnName("technologies").HasColumnType("text[]").IsRequired();
+        project.HasMany(item => item.Documents)
+            .WithOne()
+            .HasForeignKey(item => item.ProjectId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        var document = modelBuilder.Entity<ProjectDocument>();
+        document.ToTable("project_documents");
+        document.HasKey(item => item.Id);
+        document.Property(item => item.Id).HasColumnName("id");
+        document.Property(item => item.ProjectId).HasColumnName("project_id").IsRequired();
+        document.Property(item => item.Title).HasColumnName("title").HasMaxLength(180).IsRequired();
+        document.Property(item => item.DocumentType).HasColumnName("document_type").HasMaxLength(40).IsRequired();
+        document.Property(item => item.PublicUrl).HasColumnName("public_url").HasMaxLength(2000).IsRequired();
+        document.Property(item => item.DisplayOrder).HasColumnName("display_order").IsRequired();
     }
 }
